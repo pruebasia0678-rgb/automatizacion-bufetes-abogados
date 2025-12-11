@@ -8,6 +8,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-yellow)](https://python.org)
 
 ## 📋 Tabla de Contenidos
+- [Compatibilidad n8n 2.0](#compatibilidad-n8n-20)
 
 - [Características](#características)
 - [Arquitectura del Sistema](#arquitectura-del-sistema)
@@ -363,6 +364,203 @@ Contacto inicial → Formulario web → Verificación identidad → Firma contra
 3. **Propuesta personalizada:** Selección de paquetes + roadmap + presupuesto
 4. **Prueba de concepto:** Implementar 1 automatización crítica (sin coste si no aporta valor)
 
+
+---
+
+## ⚠️ Compatibilidad n8n 2.0
+
+> **🚨 IMPORTANTE:** n8n lanzó la versión 2.0 el 15 de diciembre de 2025 con cambios significativos. Esta documentación ha sido actualizada para reflejar la compatibilidad con n8n 2.0.
+
+### 🔄 ¿Qué ha cambiado en n8n 2.0?
+
+**Nuevas características:**
+- ✅ Auto-guardado automático de workflows
+- ✅ UI completamente rediseñada y más intuitiva
+- ✅ Mejoras significativas de seguridad
+- ✅ 70+ nodos de IA nativos (LLMs, embeddings, OCR, speech)
+- ✅ Mejor rendimiento y escalabilidad
+- ✅ Subworkflows optimizados
+- ✅ Sistema de carpetas mejorado
+
+**Breaking changes críticos que afectan a este proyecto:**
+
+1. **🔑 Code Nodes y API Keys**
+   - Cambios en cómo se gestionan las credenciales en nodos de código
+   - **Impacto:** Paquetes 3, 7 (procesamiento de documentos con IA)
+   - **Acción:** Revisar nodos de código que accedan a APIs externas
+
+2. **🔗 Autenticación OAuth**
+   - Métodos OAuth pueden requerir reconfiguración
+   - **Impacto:** Paquetes 1, 2, 4, 5 (Google Calendar, Microsoft Graph, Gmail)
+   - **Acción:** Validar y reconectar integraciones OAuth
+
+3. **🔀 Sub-workflows y Wait Nodes**
+   - Modificaciones en comportamiento de workflows anidados
+   - **Impacto:** Paquetes 8, 9 (BI y Compliance con lógica compleja)
+   - **Acción:** Testear flujos con múltiples sub-workflows
+
+4. **📦 HTTP Request Node**
+   - Nuevos protocolos de seguridad y manejo de certificados
+   - **Impacto:** Todos los paquetes que consuman APIs REST
+   - **Acción:** Verificar conexiones a APIs de software jurídico (LexNET, registros)
+
+5. **📊 Base de datos MySQL/MariaDB**
+   - Cambios en conexiones a bases de datos
+   - **Impacto:** Paquete 8 (BI y reporting con base de datos)
+   - **Acción:** Actualizar strings de conexión
+
+### 🧪 Guía de Migración
+
+📚 **Documentación oficial:** [n8n 2.0 Breaking Changes Guide](https://docs.n8n.io/2-0-breaking-changes/)
+
+#### Estrategia de Migración Recomendada
+
+**NUNCA actualices directamente en producción.** Sigue esta secuencia:
+
+```mermaid
+graph LR
+    A[Entorno actual 1.x] --> B[Clonar a entorno TEST]
+    B --> C[Actualizar TEST a 2.0]
+    C --> D[Ejecutar tests automatizados]
+    D --> E{¿Todos los tests OK?}
+    E -->|No| F[Documentar y corregir errores]
+    F --> D
+    E -->|Sí| G[Backup completo producción]
+    G --> H[Actualizar producción]
+    H --> I[Monitorizar 48h]
+```
+
+#### ✅ Checklist Pre-Migración
+
+Antes de actualizar **cualquier** instancia con workflows de clientes:
+
+- [ ] **Backup completo** de base de datos n8n (PostgreSQL)
+- [ ] **Exportar todos los workflows** como JSON
+- [ ] **Documentar credenciales OAuth** activas
+- [ ] **Listar nodos de código** que usan variables de entorno
+- [ ] **Identificar sub-workflows** complejos
+- [ ] **Crear entorno de testing** aislado
+- [ ] **Revisar changelog completo:** [n8n releases](https://github.com/n8n-io/n8n/releases)
+
+#### 🛠️ Testing por Paquete
+
+Dependiendo de qué paquetes implementes, estos son los tests críticos:
+
+| Paquete | Test prioritario | Riesgo |
+|---------|------------------|--------|
+| **1. CRM y Leads** | Verificar OAuth Google Sheets / HubSpot | 🟡 Medio |
+| **2. Plazos** | Probar creación eventos en Google Calendar / Outlook | 🟡 Medio |
+| **3. Documentos** | Validar generación PDFs con IA (OpenAI API) | 🔴 Alto |
+| **4. Email** | Confirmar envío SMTP e IMAP | 🟢 Bajo |
+| **5. Comunicación** | Testear WhatsApp Business API / Twilio | 🟡 Medio |
+| **6. Facturación** | Validar cálculo honorarios y generación facturas | 🔴 Alto |
+| **7. Pruebas** | Verificar OCR y clasificación IA de documentos | 🔴 Alto |
+| **8. BI** | Comprobar conexión MySQL y queries ETL | 🔴 Alto |
+| **9. Compliance** | Auditar logs y trazabilidad de accesos | 🔴 Alto |
+| **10. Onboarding** | Probar firma electrónica (Docusign/Autofirma) | 🟡 Medio |
+
+🔴 **Alto:** Requiere testing exhaustivo y posibles ajustes  
+🟡 **Medio:** Verificar funcionamiento básico  
+🟢 **Bajo:** Cambios mínimos esperados
+
+### 📝 Estado de Compatibilidad
+
+**Última actualización:** 11 de diciembre de 2025
+
+| Paquete | Estado n8n 2.0 | Notas |
+|---------|----------------|-------|
+| Paquete 1 | 🟡 Requiere validación | Revisar OAuth Google/HubSpot |
+| Paquete 2 | 🟡 Requiere validación | Verificar CalDAV |
+| Paquete 3 | 🟠 En testing | Ajustes en nodos IA |
+| Paquete 4 | ✅ Compatible | Sin cambios necesarios |
+| Paquete 5 | 🟡 Requiere validación | Confirmar webhooks |
+| Paquete 6 | 🟠 En testing | Revisar cálculos complejos |
+| Paquete 7 | 🟠 En testing | Actualizar prompts IA |
+| Paquete 8 | 🔴 Requiere ajustes | Conexiones DB |
+| Paquete 9 | 🟠 En testing | Validar logs |
+| Paquete 10 | 🟡 Requiere validación | Probar Docusign |
+
+**Leyenda:**
+- ✅ Compatible: Funciona sin cambios
+- 🟡 Requiere validación: Testear antes de usar
+- 🟠 En testing: Pruebas en curso
+- 🔴 Requiere ajustes: Modificaciones necesarias documentadas
+
+### 🚀 Instalación Entorno de Testing
+
+#### Opción 1: Docker (Recomendado para testing rápido)
+
+```bash
+# Crear directorio de testing
+mkdir n8n-2.0-test && cd n8n-2.0-test
+
+# Docker Compose con n8n 2.0
+cat > docker-compose.yml << 'EOF'
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:2.0
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=test123
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+      - ./workflows:/workflows
+EOF
+
+# Levantar entorno
+docker-compose up -d
+
+# Acceder: http://localhost:5678
+```
+
+#### Opción 2: Instalación local con npm
+
+```bash
+# Instalar n8n 2.0
+npm install -g n8n@2.0
+
+# Iniciar en modo test
+export N8N_PORT=5679
+export N8N_PROTOCOL=http
+n8n start
+```
+
+#### Importar workflows de este repositorio
+
+```bash
+# Clonar el repo con los workflows de ejemplo
+git clone https://github.com/[tu-usuario]/automatizacion-bufetes-abogados.git
+cd automatizacion-bufetes-abogados/workflows
+
+# Los workflows JSON estarán disponibles para importar en n8n UI
+```
+
+### 📊 Reportar Problemas de Compatibilidad
+
+Si encuentras problemas con n8n 2.0:
+
+1. **Crea un issue** en este repositorio: [Nuevo Issue](https://github.com/[tu-usuario]/automatizacion-bufetes-abogados/issues/new)
+2. **Incluye:**
+   - Versión exacta de n8n (`n8n --version`)
+   - Paquete afectado
+   - Descripción del error
+   - Screenshots si es posible
+   - Logs relevantes
+
+### 🔗 Recursos Adicionales
+
+- 📚 [Documentación oficial n8n 2.0](https://docs.n8n.io/)
+- 🔧 [Guía de migración completa](https://docs.n8n.io/2-0-breaking-changes/)
+- 💬 [Comunidad n8n](https://community.n8n.io/t/announcing-n8n-version-2-0-coming-soon/226475)
+- 🚀 [Changelog completo](https://github.com/n8n-io/n8n/blob/master/CHANGELOG.md)
+- 🎬 [Video: Preparación para n8n 2.0](https://www.youtube.com/watch?v=yAZy5EooyCo)
+
+---
 ---
 
 ## 📞 Contacto
