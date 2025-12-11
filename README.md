@@ -488,57 +488,32 @@ Dependiendo de qué paquetes implementes, estos son los tests críticos:
 
 ### 🚀 Instalación Entorno de Testing
 
-#### Opción 1: Docker (Recomendado para testing rápido)
+#### Docker (Recomendado)
 
-```bash
-# Crear directorio de testing
-mkdir n8n-2.0-test && cd n8n-2.0-test
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/[tu-usuario]/automatizacion-bufetes-abogados.git
+    cd automatizacion-bufetes-abogados
+    ```
 
-# Docker Compose con n8n 2.0
-cat > docker-compose.yml << 'EOF'
-version: '3.8'
+2.  **Configurar variables de entorno:**
+    Copia el archivo `.env.example` a `.env` y edítalo si es necesario.
+    ```bash
+    cp .env.example .env
+    ```
 
-services:
-  n8n:
-    image: n8nio/n8n:2.0
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=test123
-    volumes:
-      - ./n8n-data:/home/node/.n8n
-      - ./workflows:/workflows
-EOF
+3.  **Levantar el entorno con Docker Compose:**
+    ```bash
+    docker compose up -d
+    ```
 
-# Levantar entorno
-docker-compose up -d
+4.  **Acceder a n8n:**
+    Abre tu navegador y ve a `http://localhost:5678`. Deberías poder iniciar sesión con las credenciales que configuraste en tu archivo `.env`.
 
-# Acceder: http://localhost:5678
-```
-
-#### Opción 2: Instalación local con npm
-
-```bash
-# Instalar n8n 2.0
-npm install -g n8n@2.0
-
-# Iniciar en modo test
-export N8N_PORT=5679
-export N8N_PROTOCOL=http
-n8n start
-```
-
-#### Importar workflows de este repositorio
-
-```bash
-# Clonar el repo con los workflows de ejemplo
-git clone https://github.com/[tu-usuario]/automatizacion-bufetes-abogados.git
-cd automatizacion-bufetes-abogados/workflows
-
-# Los workflows JSON estarán disponibles para importar en n8n UI
-```
+5.  **Importar los flujos de trabajo:**
+    - Ve a la sección de "Workflows" en la interfaz de usuario de n8n.
+    - Haz clic en "Import from File".
+    - Selecciona y sube los archivos JSON del directorio `workflows/` uno por uno.
 
 ### 📊 Reportar Problemas de Compatibilidad
 

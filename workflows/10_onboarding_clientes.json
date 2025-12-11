@@ -1,0 +1,111 @@
+{
+  "name": "Paquete 10: Onboarding de Clientes Automatizado",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "event": "form.submitted",
+        "formId": "onboarding",
+        "options": {}
+      },
+      "name": "Formulario Web Enviado",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": "{{$json.body.idDocument}}",
+        "options": {}
+      },
+      "name": "Verificación de Identidad",
+      "type": "n8n-nodes-base.veriff",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "templateId": "contrato_servicios",
+        "recipient": {
+          "email": "{{$json.body.email}}",
+          "name": "{{$json.body.name}}"
+        },
+        "options": {}
+      },
+      "name": "Firma de Contrato Digital (DocuSign)",
+      "type": "n8n-nodes-base.docusign",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "to": "{{$json.body.email}}",
+        "subject": "Bienvenido a nuestro bufete",
+        "text": "Gracias por completar el proceso de onboarding. Un abogado se pondrá en contacto con usted en breve."
+      },
+      "name": "Enviar Email de Bienvenida",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Formulario Web Enviado": {
+      "main": [
+        [
+          {
+            "node": "Verificación de Identidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificación de Identidad": {
+      "main": [
+        [
+          {
+            "node": "Firma de Contrato Digital (DocuSign)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firma de Contrato Digital (DocuSign)": {
+      "main": [
+        [
+          {
+            "node": "Enviar Email de Bienvenida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "10"
+}

@@ -1,0 +1,108 @@
+{
+  "name": "Paquete 4: Generacion de Documentos con IA",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.crm.example.com/expedientes/{{$json.body.caseId}}",
+        "options": {}
+      },
+      "name": "Obtener Datos de Expediente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "prompt": "Genera una demanda de divorcio con los siguientes datos: {{$json.body.data}}",
+        "options": {}
+      },
+      "name": "Generar Borrador con IA",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "borrador_demanda_{{$json.body.caseId}}.docx",
+        "data": "{{$json.body.draft}}",
+        "options": {}
+      },
+      "name": "Guardar Documento",
+      "type": "n8n-nodes-base.file",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "to": "abogado@example.com",
+        "subject": "Borrador de documento listo para revisión",
+        "text": "Se ha generado un nuevo borrador para el expediente {{$json.body.caseId}}."
+      },
+      "name": "Notificar a Abogado",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Obtener Datos de Expediente": {
+      "main": [
+        [
+          {
+            "node": "Generar Borrador con IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Borrador con IA": {
+      "main": [
+        [
+          {
+            "node": "Guardar Documento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Documento": {
+      "main": [
+        [
+          {
+            "node": "Notificar a Abogado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "4"
+}

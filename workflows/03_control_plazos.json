@@ -1,0 +1,133 @@
+{
+  "name": "Paquete 3: Control de Plazos Automatizado",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "options": {}
+      },
+      "name": "Extraer Fechas de Sentencia PDF",
+      "type": "n8n-nodes-base.pdf",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "prompt": "Extrae las fechas clave de esta sentencia: {{$json.body.text}}",
+        "options": {}
+      },
+      "name": "Extraer Fechas con IA",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return { plazo: new Date($json.body.fechaNotificacion).getTime() + (10 * 24 * 60 * 60 * 1000) };"
+      },
+      "name": "Calcular Plazos",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": "primary",
+        "title": "Vencimiento de plazo - Expediente {{$json.body.caseId}}",
+        "start": "{{new Date($json.body.plazo).toISOString()}}",
+        "end": "{{new Date($json.body.plazo).toISOString()}}",
+        "options": {}
+      },
+      "name": "Crear Evento en Calendario",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "to": "abogado@example.com",
+        "subject": "Recordatorio de Plazo: Expediente {{$json.body.caseId}}",
+        "text": "El plazo para el expediente {{$json.body.caseId}} vence en 3 días."
+      },
+      "name": "Enviar Recordatorio por Email (3 días)",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Extraer Fechas de Sentencia PDF": {
+      "main": [
+        [
+          {
+            "node": "Extraer Fechas con IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Fechas con IA": {
+      "main": [
+        [
+          {
+            "node": "Calcular Plazos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Plazos": {
+      "main": [
+        [
+          {
+            "node": "Crear Evento en Calendario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear Evento en Calendario": {
+      "main": [
+        [
+          {
+            "node": "Enviar Recordatorio por Email (3 días)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "3"
+}

@@ -1,0 +1,105 @@
+{
+  "name": "Paquete 9: Compliance y Seguridad Documental",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "event": "document.created",
+        "options": {}
+      },
+      "name": "Nuevo Documento Creado",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "text": "{{$json.body.documentText}}",
+        "options": {}
+      },
+      "name": "Verificación RGPD (IA)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "filePath": "{{$json.body.filePath}}",
+        "options": {}
+      },
+      "name": "Cifrar Documento",
+      "type": "n8n-nodes-base.encrypt",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "message": "Acceso al documento {{$json.body.fileName}} por el usuario {{$json.body.user}}",
+        "options": {}
+      },
+      "name": "Registrar en Log de Auditoría",
+      "type": "n8n-nodes-base.log",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Nuevo Documento Creado": {
+      "main": [
+        [
+          {
+            "node": "Verificación RGPD (IA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificación RGPD (IA)": {
+      "main": [
+        [
+          {
+            "node": "Cifrar Documento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cifrar Documento": {
+      "main": [
+        [
+          {
+            "node": "Registrar en Log de Auditoría",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "9"
+}
