@@ -1,0 +1,108 @@
+{
+  "name": "Paquete 7: Gestion de Pruebas y Documentacion Procesal",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "event": "document.received",
+        "options": {}
+      },
+      "name": "Recepción de Documento",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "prompt": "Clasifica este documento procesal: {{$json.body.documentText}}",
+        "options": {}
+      },
+      "name": "Clasificación Automática (IA)",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "index",
+        "index": "pruebas_expedientes",
+        "document": "{{$json}}",
+        "options": {}
+      },
+      "name": "Indexar en Expediente",
+      "type": "n8n-nodes-base.elasticsearch",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "#expediente-{{$json.body.caseId}}",
+        "text": "Nueva prueba documental recibida y clasificada: {{$json.body.documentType}}"
+      },
+      "name": "Notificar a Equipo",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Recepción de Documento": {
+      "main": [
+        [
+          {
+            "node": "Clasificación Automática (IA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificación Automática (IA)": {
+      "main": [
+        [
+          {
+            "node": "Indexar en Expediente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indexar en Expediente": {
+      "main": [
+        [
+          {
+            "node": "Notificar a Equipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "7"
+}

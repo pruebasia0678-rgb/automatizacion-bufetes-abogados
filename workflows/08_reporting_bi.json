@@ -1,0 +1,111 @@
+{
+  "name": "Paquete 8: Reporting y Business Intelligence",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "name": "Ejecutar Diariamente",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "query": "SELECT * FROM facturacion WHERE mes = CURRENT_MONTH",
+        "options": {}
+      },
+      "name": "Extraer Datos del Gestor",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.powerbi.com/v1.0/myorg/datasets/{{$env.POWERBI_DATASET_ID}}/refreshes",
+        "options": {}
+      },
+      "name": "Actualizar Dashboard Power BI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "to": "socio-director@example.com",
+        "subject": "Reporte de KPIs Semanal",
+        "text": "El dashboard de BI ha sido actualizado. Puede consultarlo en [link]."
+      },
+      "name": "Enviar Email Ejecutivo",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Ejecutar Diariamente": {
+      "main": [
+        [
+          {
+            "node": "Extraer Datos del Gestor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Datos del Gestor": {
+      "main": [
+        [
+          {
+            "node": "Actualizar Dashboard Power BI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar Dashboard Power BI": {
+      "main": [
+        [
+          {
+            "node": "Enviar Email Ejecutivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "8"
+}

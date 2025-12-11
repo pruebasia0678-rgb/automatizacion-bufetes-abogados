@@ -1,0 +1,109 @@
+{
+  "name": "Paquete 6: Facturacion y Cobro Automatizado",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "event": "milestone.reached",
+        "options": {}
+      },
+      "name": "Hito de Expediente Alcanzado",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return { amount: $json.body.hours * 200 };"
+      },
+      "name": "Calcular Honorarios",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "template": "invoice_template.html",
+        "data": "{{$json}}",
+        "options": {}
+      },
+      "name": "Generar Factura PDF",
+      "type": "n8n-nodes-base.htmlToPdf",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "to": "{{$json.body.clientEmail}}",
+        "subject": "Factura de servicios legales",
+        "text": "Adjuntamos la factura correspondiente a los servicios prestados.",
+        "attachments": [
+          "{{$json.body.pdf}}"
+        ]
+      },
+      "name": "Enviar Factura por Email",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Hito de Expediente Alcanzado": {
+      "main": [
+        [
+          {
+            "node": "Calcular Honorarios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Honorarios": {
+      "main": [
+        [
+          {
+            "node": "Generar Factura PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Factura PDF": {
+      "main": [
+        [
+          {
+            "node": "Enviar Factura por Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "6"
+}

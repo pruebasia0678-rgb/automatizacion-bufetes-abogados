@@ -1,0 +1,179 @@
+{
+  "name": "Paquete 1: Captacion y Cualificacion de Leads",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "webhook",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook (Web/WhatsApp)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ],
+      "webhookId": "12345-6789-abcd-efgh"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Chatbot (Simulado)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "rules": [
+            {
+              "value1": "{{$json.body.caseType}}",
+              "operation": "equal",
+              "value2": "laboral"
+            },
+            {
+              "value1": "{{$json.body.caseType}}",
+              "operation": "equal",
+              "value2": "familia"
+            }
+          ]
+        },
+        "options": {
+          "multipleValues": false
+        }
+      },
+      "name": "Clasifica Caso",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.crm.example.com/leads",
+        "options": {}
+      },
+      "name": "Enviar a CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "to": "cliente@example.com",
+        "subject": "Hemos recibido su caso",
+        "text": "Gracias por contactarnos. Un abogado se pondrá en contacto con usted en breve."
+      },
+      "name": "Enviar Email",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "channel": "#leads",
+        "text": "Nuevo lead recibido: {{$json.body.customerName}}"
+      },
+      "name": "Notificar a Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1450,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook (Web/WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Chatbot (Simulado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatbot (Simulado)": {
+      "main": [
+        [
+          {
+            "node": "Clasifica Caso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasifica Caso": {
+      "main": [
+        [
+          {
+            "node": "Enviar a CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar a CRM",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Enviar a CRM": {
+      "main": [
+        [
+          {
+            "node": "Enviar Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Email": {
+      "main": [
+        [
+          {
+            "node": "Notificar a Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "1"
+}
